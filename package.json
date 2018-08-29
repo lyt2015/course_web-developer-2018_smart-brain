@@ -8,6 +8,7 @@
     "build": "webpack --mode development"
   },
   "dependencies": {
+    "clarifai": "^2.8.1",
     "nanoid": "^1.2.1",
     "node-sass": "^4.9.3",
     "react": "^16.4.2",
