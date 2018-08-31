@@ -9,6 +9,8 @@ import Navigation from '../components/Navigation/Navigation'
 import Rank from '../components/Rank/Rank'
 import ImageLinkForm from '../components/ImageLinkForm/ImageLinkForm'
 import FaceRecognition from '../components/FaceRecognition/FaceRecognition'
+import Signin from '../components/Signin/Signin'
+import Register from '../components/Register/Register'
 import '../styles/index.scss'
 import './App.scss'
 
@@ -21,6 +23,8 @@ class App extends React.Component {
       input: '',
       imageUrl: '',
       boxes: [],
+      route: 'signin',
+      isSignedIn: false,
     }
 
     this.app = new Clarifai.App({ apiKey: 'c330aeac794f40db9cb1ec09356e3171' })
@@ -58,24 +62,49 @@ class App extends React.Component {
         width: `${((box.right_col - box.left_col) * 100).toFixed(4)}%`,
         height: `${((box.bottom_row - box.top_row) * 100).toFixed(4)}%`,
       }
-      this.setState(pre => ({
-        boxes: pre.boxes.concat(<div key={index} className="bounding-box" style={style} />),
+      this.setState(preState => ({
+        boxes: [...preState.boxes, <div key={index} className="bounding-box" style={style} />],
       }))
     })
+  }
+
+  handleRouteChange = route => {
+    this.setState({ route })
+    if (route === 'home') {
+      this.setState({ isSignedIn: true })
+    } else {
+      this.setState({ isSignedIn: false })
+    }
+  }
+
+  calculateRoute = () => {
+    switch (this.state.route) {
+      case 'signin':
+        return <Signin handleRouteChange={this.handleRouteChange} />
+      case 'register':
+        return <Register handleRouteChange={this.handleRouteChange} />
+      default:
+        return (
+          <div>
+            <Logo />
+            <Rank />
+            <ImageLinkForm
+              handleInputChange={this.handleInputChange}
+              handleSubmit={this.handleSubmit}
+            />
+            <FaceRecognition imageUrl={this.state.imageUrl} faceBoxes={this.state.boxes} />
+          </div>
+        )
+    }
   }
 
   render() {
     return (
       <div>
         <Particles className="particles" params={particlesOptions} />
-        <Logo />
-        <Navigation />
-        <Rank />
-        <ImageLinkForm
-          handleInputChange={this.handleInputChange}
-          handleSubmit={this.handleSubmit}
-        />
-        <FaceRecognition imageUrl={this.state.imageUrl} faceBoxes={this.state.boxes} />
+        <Navigation handleRouteChange={this.handleRouteChange} isSignedIn={this.state.isSignedIn} />
+
+        {this.calculateRoute()}
       </div>
     )
   }
