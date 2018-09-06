@@ -25,6 +25,7 @@ class App extends React.Component {
       boxes: [],
       route: 'signin',
       isSignedIn: false,
+      user: null,
     }
 
     this.app = new Clarifai.App({ apiKey: 'c330aeac794f40db9cb1ec09356e3171' })
@@ -34,21 +35,39 @@ class App extends React.Component {
     await this.setState({ input: e.target.value })
   }
 
-  handleSubmit = () => {
-    ;(async () => {
-      try {
-        await this.setState({ boxes: [] })
-        await this.setState({ imageUrl: this.state.input })
-        const res = await this.app.models.predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.imageUrl)
-        if (res.outputs.length > 0) {
-          const regions = res.outputs[0].data.regions
-          console.log(regions)
-          this.calculateBoxes(regions)
-        }
-      } catch (error) {
-        console.log(error)
+  handlePatch = async () => {
+    const patchRes = await fetch('http://localhost:8080/image', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        _id: this.state.user._id,
+      }),
+    })
+    console.log(patchRes)
+
+    const patchResJSON = await patchRes.json()
+    console.log(patchResJSON)
+
+    this.setState({ user: patchResJSON })
+  }
+
+  handleSubmit = async () => {
+    try {
+      await this.setState({ boxes: [] })
+      await this.setState({ imageUrl: this.state.input })
+      const res = await this.app.models.predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.imageUrl)
+      if (res.outputs.length > 0) {
+        const regions = res.outputs[0].data.regions
+        console.log(regions)
+        this.calculateBoxes(regions)
+
+        this.handlePatch()
       }
-    })()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   calculateBoxes = regions => {
@@ -68,6 +87,10 @@ class App extends React.Component {
     })
   }
 
+  loadUser = user => {
+    this.setState({ user })
+  }
+
   handleRouteChange = route => {
     this.setState({ route })
     if (route === 'home') {
@@ -80,14 +103,14 @@ class App extends React.Component {
   calculateRoute = () => {
     switch (this.state.route) {
       case 'signin':
-        return <Signin handleRouteChange={this.handleRouteChange} />
+        return <Signin handleRouteChange={this.handleRouteChange} loadUser={this.loadUser} />
       case 'register':
-        return <Register handleRouteChange={this.handleRouteChange} />
+        return <Register handleRouteChange={this.handleRouteChange} loadUser={this.loadUser} />
       default:
         return (
           <div>
             <Logo />
-            <Rank />
+            <Rank user={this.state.user} />
             <ImageLinkForm
               handleInputChange={this.handleInputChange}
               handleSubmit={this.handleSubmit}
@@ -103,7 +126,6 @@ class App extends React.Component {
       <div>
         <Particles className="particles" params={particlesOptions} />
         <Navigation handleRouteChange={this.handleRouteChange} isSignedIn={this.state.isSignedIn} />
-
         {this.calculateRoute()}
       </div>
     )
