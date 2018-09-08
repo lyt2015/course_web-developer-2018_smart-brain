@@ -22,8 +22,8 @@ class Register extends React.Component {
     this.setState({ password: e.target.value })
   }
 
-  handleSubmit = () => {
-    fetch('http://localhost:8080/register', {
+  handleSubmit = async () => {
+    const res = await fetch('http://localhost:3000/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,17 +34,13 @@ class Register extends React.Component {
         password: this.state.password,
       }),
     })
-      .then(res => {
-        // console.log(res)
-        return res.json()
-      })
-      .then(user => {
-        // console.log(user)
-        if (user) {
-          this.props.loadUser(user)
-          this.props.handleRouteChange('home')
-        }
-      })
+    const result = await res.json()
+    if (res.status === 200) {
+      this.props.loadUser(result)
+      this.props.handleRouteChange('home')
+    } else {
+      alert(result)
+    }
   }
 
   render() {

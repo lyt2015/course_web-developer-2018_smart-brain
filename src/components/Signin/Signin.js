@@ -18,8 +18,8 @@ class Signin extends React.Component {
     this.setState({ password: e.target.value })
   }
 
-  handleSubmit = () => {
-    fetch('http://localhost:8080/signin', {
+  handleSubmit = async () => {
+    const res = await fetch('http://localhost:3000/signin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,17 +29,13 @@ class Signin extends React.Component {
         password: this.state.password,
       }),
     })
-      .then(res => {
-        // console.log(res)
-        return res.json()
-      })
-      .then(data => {
-        // console.log('signin', data)
-        if (data !== 'fail') {
-          this.props.loadUser(data)
-          this.props.handleRouteChange('home')
-        }
-      })
+    const result = await res.json()
+    if (res.status === 200) {
+      this.props.loadUser(result)
+      this.props.handleRouteChange('home')
+    } else {
+      alert(result)
+    }
   }
 
   render() {

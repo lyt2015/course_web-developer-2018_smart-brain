@@ -36,7 +36,7 @@ class App extends React.Component {
   }
 
   handlePatch = async () => {
-    const patchRes = await fetch('http://localhost:8080/image', {
+    const patchRes = await fetch('http://localhost:3000/image', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
