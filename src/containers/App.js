@@ -16,17 +16,18 @@ import './App.scss'
 
 import { particlesOptions } from '../constants/constants'
 
+const initialState = {
+  input: '',
+  imageUrl: '',
+  boxes: [],
+  route: 'signin',
+  isSignedIn: false,
+  user: null,
+}
 class App extends React.Component {
   constructor(props) {
     super(props)
-    this.state = {
-      input: '',
-      imageUrl: '',
-      boxes: [],
-      route: 'signin',
-      isSignedIn: false,
-      user: null,
-    }
+    this.state = initialState
 
     this.app = new Clarifai.App({ apiKey: 'c330aeac794f40db9cb1ec09356e3171' })
   }
@@ -36,21 +37,25 @@ class App extends React.Component {
   }
 
   handlePatch = async () => {
-    const patchRes = await fetch('http://localhost:3000/image', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        _id: this.state.user._id,
-      }),
-    })
-    console.log(patchRes)
+    try {
+      const res = await fetch('http://localhost:3000/image', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          _id: this.state.user._id,
+        }),
+      })
+      console.log(res)
 
-    const patchResJSON = await patchRes.json()
-    console.log(patchResJSON)
+      const result = await res.json()
+      console.log(result)
 
-    this.setState({ user: patchResJSON })
+      this.setState({ user: result })
+    } catch (error) {
+      console.log('problem connecting image endpoint')
+    }
   }
 
   handleSubmit = async () => {
@@ -66,7 +71,7 @@ class App extends React.Component {
         this.handlePatch()
       }
     } catch (error) {
-      console.log(error)
+      console.log('problem fetching clarifai results')
     }
   }
 
@@ -96,7 +101,14 @@ class App extends React.Component {
     if (route === 'home') {
       this.setState({ isSignedIn: true })
     } else {
-      this.setState({ isSignedIn: false })
+      this.setState({
+        input: '',
+        imageUrl: '',
+        boxes: [],
+        isSignedIn: false,
+        user: null,
+      })
+      // this.setState(initialState)
     }
   }
 
