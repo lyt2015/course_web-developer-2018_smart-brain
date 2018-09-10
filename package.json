@@ -4,11 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "node server/server.js",
+    "heroku-postbuild": "yarn run build:production",
+    "build:production": "webpack -p",
+    "server": "webpack-dev-server",
     "build": "webpack --mode development"
   },
   "dependencies": {
-    "clarifai": "^2.8.1",
+    "express": "^4.16.3",
     "nanoid": "^1.2.1",
     "node-sass": "^4.9.3",
     "react": "^16.4.2",
@@ -42,5 +45,8 @@
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "webpack-dev-server": "^3.1.5"
+  },
+  "engines": {
+    "node": "10.2.1"
   }
 }

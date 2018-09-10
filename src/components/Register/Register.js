@@ -11,35 +11,39 @@ class Register extends React.Component {
   }
 
   handleNameChange = e => {
-    this.setState({ name: e.target.value })
+    this.setState({ name: e.target.value.trim() })
   }
 
   handleEmailChange = e => {
-    this.setState({ email: e.target.value })
+    this.setState({ email: e.target.value.trim() })
   }
 
   handlePasswordChange = e => {
-    this.setState({ password: e.target.value })
+    this.setState({ password: e.target.value.trim() })
   }
 
   handleSubmit = async () => {
-    const res = await fetch('http://localhost:3000/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: this.state.name,
-        email: this.state.email,
-        password: this.state.password,
-      }),
-    })
-    const result = await res.json()
-    if (res.status === 200) {
-      this.props.loadUser(result)
-      this.props.handleRouteChange('home')
-    } else {
-      alert(result)
+    try {
+      const res = await fetch('https://damp-retreat-12750.herokuapp.com/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: this.state.name,
+          email: this.state.email,
+          password: this.state.password,
+        }),
+      })
+      const result = await res.json()
+      if (res.status === 200) {
+        this.props.loadUser(result)
+        this.props.handleRouteChange('home')
+      } else {
+        alert(result)
+      }
+    } catch (error) {
+      console.log('error reaching register endpoint at server')
     }
   }
 

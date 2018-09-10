@@ -11,30 +11,34 @@ class Signin extends React.Component {
   }
 
   handleEmailChange = e => {
-    this.setState({ email: e.target.value })
+    this.setState({ email: e.target.value.trim() })
   }
 
   handlePasswordChange = e => {
-    this.setState({ password: e.target.value })
+    this.setState({ password: e.target.value.trim() })
   }
 
   handleSubmit = async () => {
-    const res = await fetch('http://localhost:3000/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: this.state.email,
-        password: this.state.password,
-      }),
-    })
-    const result = await res.json()
-    if (res.status === 200) {
-      this.props.loadUser(result)
-      this.props.handleRouteChange('home')
-    } else {
-      alert(result)
+    try {
+      const res = await fetch('https://damp-retreat-12750.herokuapp.com/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.state.email,
+          password: this.state.password,
+        }),
+      })
+      const result = await res.json()
+      if (res.status === 200) {
+        this.props.loadUser(result)
+        this.props.handleRouteChange('home')
+      } else {
+        alert(result)
+      }
+    } catch (error) {
+      console.log('error reaching signin endpoint at server')
     }
   }
 

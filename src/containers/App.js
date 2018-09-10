@@ -1,7 +1,6 @@
 import React from 'react'
 import Particles from 'react-particles-js'
 import 'tachyons'
-import Clarifai from 'clarifai'
 
 import ErrorBoundary from '../components/ErrorBoundary/ErrorBoundary'
 import Logo from '../components/Logo/Logo'
@@ -28,8 +27,6 @@ class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = initialState
-
-    this.app = new Clarifai.App({ apiKey: 'c330aeac794f40db9cb1ec09356e3171' })
   }
 
   handleInputChange = async e => {
@@ -38,11 +35,9 @@ class App extends React.Component {
 
   handlePatch = async () => {
     try {
-      const res = await fetch('http://localhost:3000/image', {
+      const res = await fetch('https://damp-retreat-12750.herokuapp.com/image', {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           _id: this.state.user._id,
         }),
@@ -60,11 +55,18 @@ class App extends React.Component {
 
   handleSubmit = async () => {
     try {
-      await this.setState({ boxes: [] })
-      await this.setState({ imageUrl: this.state.input })
-      const res = await this.app.models.predict(Clarifai.DEMOGRAPHICS_MODEL, this.state.imageUrl)
-      if (res.outputs.length > 0) {
-        const regions = res.outputs[0].data.regions
+      this.setState({ boxes: [] })
+      this.setState({ imageUrl: this.state.input })
+      const res = await fetch('https://damp-retreat-12750.herokuapp.com/imageurl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl: this.state.input,
+        }),
+      })
+      const result = await res.json()
+      if (result.outputs.length > 0) {
+        const regions = result.outputs[0].data.regions
         console.log(regions)
         this.calculateBoxes(regions)
 
